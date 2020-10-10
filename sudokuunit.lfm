@@ -22,11 +22,11 @@ object frmMain: TfrmMain
     Height = 25
     Top = 343
     Width = 75
-    Caption = 'Clear pole'
+    Caption = 'Clear field'
     OnClick = btnClearFieldClick
     TabOrder = 1
   end
-  object StringGrid1: TStringGrid
+  object stgField: TStringGrid
     Left = 0
     Height = 337
     Top = 0
@@ -46,7 +46,7 @@ object frmMain: TfrmMain
     RowCount = 9
     ScrollBars = ssNone
     TabOrder = 2
-    OnDrawCell = StringGrid1DrawCell
+    OnDrawCell = stgFieldDrawCell
   end
   object btnSaveState: TButton
     Left = 170
