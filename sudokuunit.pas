@@ -20,8 +20,8 @@ uses
 
 type
   TNums = set of 1 .. 9;
-  TPole = array [1 .. 9, 1 .. 9] of TNums;
-  TBPole = array [1 .. 9, 1 .. 9] of integer;
+  TField = array [1 .. 9, 1 .. 9] of TNums;
+  TBField = array [1 .. 9, 1 .. 9] of integer;
 
 type
 
@@ -34,22 +34,22 @@ type
     btnOpenState: TButton;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
-    StringGrid1: TStringGrid;
+    stgField: TStringGrid;
     procedure btnSaveStateClick(Sender: TObject);
     procedure btnSolveClick(Sender: TObject);
     procedure btnClearFieldClick(Sender: TObject);
     procedure btnOpenStateClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure StringGrid1DrawCell(Sender: TObject; aCol, aRow: integer;
+    procedure stgFieldDrawCell(Sender: TObject; aCol, aRow: integer;
       aRect: TRect; aState: TGridDrawState);
   private
-    Pole: TPole;
-    BPole: TBPole;
-    procedure InitPole;
+    Field: TField;
+    BField: TBField;
+    procedure InitField;
     procedure PutNum(const X, Y, Num: integer);
-    procedure WritePole;
-    procedure ReadPole;
-    procedure CheckPole;
+    procedure WriteField;
+    procedure ReadField;
+    procedure CheckField;
     procedure checkHorizontal(const X: integer);
     procedure checkVertical(const Y: integer);
     procedure checkSquare(const S: integer);
@@ -72,20 +72,20 @@ implementation
 
 procedure TfrmMain.btnSolveClick(Sender: TObject);
 begin
-  InitPole;
-  ReadPole;
-  WritePole;
+  InitField;
+  ReadField;
+  WriteField;
 end;
 
 procedure TfrmMain.btnSaveStateClick(Sender: TObject);
 var
-  F: file of TPole;
+  F: file of TField;
 begin
   if SaveDialog1.Execute then
   begin
     AssignFile(F, SaveDialog1.FileName);
     Rewrite(F);
-    Write(F, Pole);
+    Write(F, Field);
     CloseFile(F);
   end;
 end;
@@ -96,20 +96,20 @@ var
 begin
   for iX := 1 to 9 do
     for iY := 1 to 9 do
-      StringGrid1.Cells[iY - 1, iX - 1] := '';
+      stgField.Cells[iY - 1, iX - 1] := '';
 end;
 
 procedure TfrmMain.btnOpenStateClick(Sender: TObject);
 var
-  F: file of TPole;
+  F: file of TField;
 begin
   if OpenDialog1.Execute then
   begin
     AssignFile(F, OpenDialog1.FileName);
     Reset(F);
-    Read(F, Pole);
+    Read(F, Field);
     CloseFile(F);
-    WritePole;
+    WriteField;
   end;
 end;
 
@@ -119,13 +119,12 @@ begin
   SaveDialog1.InitialDir := ExtractFileDir(Application.ExeName) + '\SavedStates';
 end;
 
-procedure TfrmMain.StringGrid1DrawCell(Sender: TObject; aCol, aRow: integer;
+procedure TfrmMain.stgFieldDrawCell(Sender: TObject; aCol, aRow: integer;
   aRect: TRect; aState: TGridDrawState);
 begin
   if ((ACol < 3) and (ARow > 2) and (ARow < 6)) or
-    ((ACol > 2) and (ACol < 6) and (ARow < 3)) or
-    ((ARow > 2) and (ARow < 6) and (ACol > 5)) or
-    ((ACol > 2) and (ACol < 6) and (ARow > 5)) then
+    ((ACol > 2) and (ACol < 6) and (ARow < 3)) or ((ARow > 2) and
+    (ARow < 6) and (ACol > 5)) or ((ACol > 2) and (ACol < 6) and (ARow > 5)) then
     with TStringGrid(Sender) do
     begin
       // paint the background Green
@@ -139,7 +138,7 @@ end;
 // Logic
 //////////////////
 
-procedure TfrmMain.InitPole;
+procedure TfrmMain.InitField;
 var
   iX, iY, iC: integer;
 begin
@@ -147,34 +146,34 @@ begin
     for iY := 1 to 9 do
       for iC := 1 to 9 do
       begin
-        Include(Pole[iX, iY], iC);
+        Include(Field[iX, iY], iC);
       end;
-  FillChar(BPole, SIZEOF(BPole), #0);
+  FillChar(BField, SIZEOF(BField), #0);
 end;
 
 procedure TfrmMain.PutNum(const X, Y, Num: integer);
 var
   iX, iY: integer;
 begin
-  if BPole[X, Y] = 1 then
+  if BField[X, Y] = 1 then
     exit;
   for iX := 1 to 9 do
     if iX <> X then
-      Exclude(Pole[iX, Y], Num);
+      Exclude(Field[iX, Y], Num);
   for iY := 1 to 9 do
     if iY <> Y then
-      Exclude(Pole[X, iY], Num);
+      Exclude(Field[X, iY], Num);
   for iX := 1 + 3 * ((X - 1) div 3) to 3 + 3 * ((X - 1) div 3) do
     for iY := 1 + 3 * ((Y - 1) div 3) to 3 + 3 * ((Y - 1) div 3) do
       if (iX <> X) and (iY <> Y) then
-        Exclude(Pole[iX, iY], Num);
-  Pole[X, Y] := [Num];
-  BPole[X, Y] := 1;
-  CheckPole;
+        Exclude(Field[iX, iY], Num);
+  Field[X, Y] := [Num];
+  BField[X, Y] := 1;
+  CheckField;
 
 end;
 
-procedure TfrmMain.WritePole;
+procedure TfrmMain.WriteField;
 var
   iX, iY: integer;
 
@@ -194,24 +193,24 @@ var
 begin
   for iX := 1 to 9 do
     for iY := 1 to 9 do
-      StringGrid1.Cells[iY - 1, iX - 1] := getNum(Pole[iX, iY]);
+      stgField.Cells[iY - 1, iX - 1] := getNum(Field[iX, iY]);
 end;
 
 
-procedure TfrmMain.ReadPole;
+procedure TfrmMain.ReadField;
 var
   iX, iY, Num, errCode: integer;
 begin
   for iX := 1 to 9 do
     for iY := 1 to 9 do
     begin
-      val(StringGrid1.Cells[iY - 1, iX - 1], Num, errCode);
+      val(stgField.Cells[iY - 1, iX - 1], Num, errCode);
       if (errCode = 0) and (Num in [1 .. 9]) then
         PutNum(iX, iY, Num);
     end;
 end;
 
-procedure TfrmMain.CheckPole;
+procedure TfrmMain.CheckField;
 var
   iC, I: integer;
 begin
@@ -237,7 +236,7 @@ begin
     temp := 0;
     for iY := 1 to 9 do
     begin
-      if iNum in Pole[X, iY] then
+      if iNum in Field[X, iY] then
       begin
         Inc(temp);
         if (temp > 1) then
@@ -245,7 +244,7 @@ begin
         tempY := iY;
       end;
     end;
-    if ((temp = 1) and (BPole[X, tempY] = 0)) then
+    if ((temp = 1) and (BField[X, tempY] = 0)) then
       PutNum(X, tempY, iNum);
   end;
 end;
@@ -261,7 +260,7 @@ begin
     temp := 0;
     for iX := 1 to 9 do
     begin
-      if iNum in Pole[iX, Y] then
+      if iNum in Field[iX, Y] then
       begin
         Inc(temp);
         if (temp > 1) then
@@ -269,7 +268,7 @@ begin
         tempX := iX;
       end;
     end;
-    if ((temp = 1) and (BPole[tempX, Y] = 0)) then
+    if ((temp = 1) and (BField[tempX, Y] = 0)) then
       PutNum(tempX, Y, iNum);
   end;
 
@@ -289,7 +288,7 @@ begin
     for iX := 3 * X - 2 to 3 * X do
       for iY := 3 * Y - 2 to 3 * Y do
       begin
-        if iNum in Pole[iX, iY] then
+        if iNum in Field[iX, iY] then
         begin
           Inc(temp);
           if (temp > 1) then
@@ -298,11 +297,12 @@ begin
           tempY := iY;
         end;
       end;
-    if ((temp = 1) and (BPole[tempX, tempY] = 0)) then
+    if ((temp = 1) and (BField[tempX, tempY] = 0)) then
       PutNum(tempX, tempY, iNum);
   end;
 
 end;
 
 end.
+
 
