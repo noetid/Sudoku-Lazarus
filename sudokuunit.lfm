@@ -1,0 +1,77 @@
+object frmMain: TfrmMain
+  Left = 335
+  Height = 398
+  Top = 128
+  Width = 331
+  Caption = 'Sudoku solver'
+  ClientHeight = 398
+  ClientWidth = 331
+  OnCreate = FormCreate
+  LCLVersion = '2.0.10.0'
+  object btnSolve: TButton
+    Left = 8
+    Height = 25
+    Top = 343
+    Width = 75
+    Caption = 'Solve'
+    OnClick = btnSolveClick
+    TabOrder = 0
+  end
+  object btnClearField: TButton
+    Left = 89
+    Height = 25
+    Top = 343
+    Width = 75
+    Caption = 'Clear pole'
+    OnClick = btnClearFieldClick
+    TabOrder = 1
+  end
+  object StringGrid1: TStringGrid
+    Left = 0
+    Height = 337
+    Top = 0
+    Width = 331
+    Align = alTop
+    ColCount = 9
+    DefaultColWidth = 35
+    DefaultRowHeight = 35
+    FixedCols = 0
+    FixedRows = 0
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing]
+    ParentFont = False
+    RowCount = 9
+    ScrollBars = ssNone
+    TabOrder = 2
+    OnDrawCell = StringGrid1DrawCell
+  end
+  object btnSaveState: TButton
+    Left = 170
+    Height = 25
+    Top = 344
+    Width = 75
+    Caption = 'Save state'
+    OnClick = btnSaveStateClick
+    TabOrder = 3
+  end
+  object btnOpenState: TButton
+    Left = 251
+    Height = 25
+    Top = 343
+    Width = 75
+    Caption = 'Open state'
+    OnClick = btnOpenStateClick
+    TabOrder = 4
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 156
+    Top = 362
+  end
+  object SaveDialog1: TSaveDialog
+    Left = 228
+    Top = 362
+  end
+end
